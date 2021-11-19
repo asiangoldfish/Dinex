@@ -98,15 +98,99 @@ class Converter():
 
             # The octet must be an integer. We return an error message to user if it isn't an integer
             try:
-                octet = int(octet)
+                int(octet)
             except ValueError:
                 # Change the output alltogether and return an error message to the user
                 self.output = "Only integers and periods are accepted"
                 return
 
             # Add newly calculated octet to the output returned back to user
-            self.output += conv(octet)
+            # If there's only 0's in the octet, then just return the octet
+            if set(octet) == {"0"}:
+                self.output += octet
+            else:
+                self.output += conv(int(octet))
 
             # Add "." to the IPv4 address if it isn't the last iteration
             if i < len(user_input) - 1:
+                self.output += "."
+
+    # Handles converting binary to decimal values
+    def bin_to_dec(self, args: str):
+        """Handles the logic for converting binary to decimal
+
+        The binary is converted to decimal by checking the length of the input and
+        using the length as the exponent to 2. Effectively, it's 2**n-i, where i is
+        the index of iteration while looping through each binary digit.
+        """
+
+        # Recursive calculation from binary to decimal
+        def conv(input_binary: str, segment_length: int, temporary_output: int = 0) -> int:
+            """Recursively convert binary digits to decimal values
+
+            We use recursion so we can efficiently perform the calculations. We start with the
+            most significant bit and go through each bit at a time. Parameter segment_length
+            therefore also becomes the index of the index we're currently working on.
+
+            Steps of calculation:
+            1. Find the first digit of the input segment.
+            2. If the binary digit is 1, calculate 2**n (segment length) and add that to temporary_output
+            3. If it is 0, then iterate to the next digit
+            4. Recursively repeat this process until n == 1
+
+            Args:
+                input_binary (str): Input segment of binary digits to convert to decimal
+                segment_length (int): This value is there so we know what the most
+                                        significant bit is and its value in decimal.
+                temporary_output (int): Temporarily stores the output of the conversion.
+                                        This parameter is used only for the recursion and
+                                        should not be passed when called.
+
+            Returns:
+                temporary_output(int): The decimal values calculated by the method
+            """
+            # Step 1: Find the first digit and identify if it's 0 or 1.
+            # Return if there's no more digits to calculate. Will otherwise throw an index error.
+            try:
+                first_digit = input_binary[0]
+            except IndexError:
+                return temporary_output
+
+            # Step 3: Binary digit is 0, hence go to next iteration
+            if first_digit == "0":
+                return conv(input_binary[1:], segment_length-1, temporary_output)
+
+            # Step 2: Digit is 1, hence calculate 2**n
+            pow_two_to_n = 2**segment_len
+            temporary_output += pow_two_to_n
+
+            # Step 4: Recursively repeat the process until n == 1
+            if segment_len == 1:
+                return temporary_output
+            else:
+                return conv(input_binary[1:], segment_length-1, temporary_output)
+
+        self.__clear_output()
+
+        # Check that there's only 1's, 0's or .'s in the user input
+        for i in set(args):
+            if i not in ["1", "0", "."]:
+                self.output = "Only 0, 1 and . are valid inputs"
+                return
+
+        # The formula is 2**n-i, where n is the total length of each segment of the
+        # input and i is the iteration looping through each digit.
+        # We split args by ".", because the input could be related to network addresses
+        segmented_args = args.split(".")
+
+        for i, segment in enumerate(segmented_args):
+            # We need this to know the value of the most significant bit
+            segment_len = len(segment)
+            # Add the result of the calculation to the output var of the instance
+            self.output += str(conv(input_binary=segment,
+                                    segment_length=segment_len-1))
+
+            # Assume that we're dealing with network addresses if user argument contains
+            # two or more segments. Therefore, add a period after each segment
+            if i < len(segmented_args) - 1:
                 self.output += "."
