@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+"""
+Why dinex, you may ask? Because (d)ecimals, b(in)aries and h(ex).
+
+dinex acts as a centralized utility tool for calculating binary, hex and decimal values.
+Although it has no file extension, it is able be executed by the user the same way
+built-in commands are.
+"""
+
+from sys import argv, prefix, base_prefix
+from os.path import isdir
+from execute_command_line import execute_command_line
+
+
+# Execute commands from terminal
+execute_command_line(argv)
