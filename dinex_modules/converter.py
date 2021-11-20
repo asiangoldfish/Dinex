@@ -125,7 +125,7 @@ class Converter():
         """
 
         # Recursive calculation from binary to decimal
-        def conv(input_binary: str, segment_length: int, temporary_output: int = 0) -> int:
+        def conv(input_binary: str, temporary_output: int = 0) -> int:
             """Recursively convert binary digits to decimal values
 
             We use recursion so we can efficiently perform the calculations. We start with the
@@ -137,6 +137,8 @@ class Converter():
             2. If the binary digit is 1, calculate 2**n (segment length) and add that to temporary_output
             3. If it is 0, then iterate to the next digit
             4. Recursively repeat this process until n == 1
+            5. For every iteration, we subtract 1 from the segment length, or n, so we iterate through each digit
+            6. Lastly, output the sum in decimal and subtract by 1, because in CS, we count from 0
 
             Args:
                 input_binary (str): Input segment of binary digits to convert to decimal
@@ -158,17 +160,19 @@ class Converter():
 
             # Step 3: Binary digit is 0, hence go to next iteration
             if first_digit == "0":
-                return conv(input_binary[1:], segment_length-1, temporary_output)
+                return conv(input_binary[1:], temporary_output)
 
-            # Step 2: Digit is 1, hence calculate 2**n
-            pow_two_to_n = 2**segment_len
-            temporary_output += pow_two_to_n
+            # The least significant bit is either 1 or 0. Without special care, if this bit is 1, then
+            # the decimal value will be 2. This is incorrect and needs a fix accordingly
+            if len(input_binary) == 1:
+                temporary_output += 1
+                return conv(input_binary[1:], temporary_output)
 
-            # Step 4: Recursively repeat the process until n == 1
-            if segment_len == 1:
-                return temporary_output
-            else:
-                return conv(input_binary[1:], segment_length-1, temporary_output)
+            # Add the sum of 2**n - 1 and repeat the process recursively. We subtract by 1 because
+            # in CS, we start counting from 0. This propegates to the code block about where we're
+            # on the last digit and the binary digit is 1
+            temporary_output += pow(2, len(input_binary) - 1)
+            return conv(input_binary[1:], temporary_output)
 
         self.__clear_output()
 
@@ -187,8 +191,7 @@ class Converter():
             # We need this to know the value of the most significant bit
             segment_len = len(segment)
             # Add the result of the calculation to the output var of the instance
-            self.output += str(conv(input_binary=segment,
-                                    segment_length=segment_len-1))
+            self.output += str(conv(segment))
 
             # Assume that we're dealing with network addresses if user argument contains
             # two or more segments. Therefore, add a period after each segment
