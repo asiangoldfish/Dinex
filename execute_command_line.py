@@ -18,6 +18,8 @@ def execute_command_line(argv: List[str] = ...):
                         help="convert decimal to binary values")
     parser.add_argument("-bd", "--binary-to-decimal", metavar="",
                         type=str, help="convert binary to decimal values")
+    parser.add_argument("-sno", "--subnetwork-overview",
+                        metavar="", help="overview of subnetting in a chart")
 
     # Verbose and quiet functionalities. They are mutually exclusive
     vq_group = parser.add_mutually_exclusive_group()
@@ -46,3 +48,8 @@ def execute_command_line(argv: List[str] = ...):
     if args.binary_to_decimal is not None:
         con.bin_to_dec(args.binary_to_decimal)
         con.results()
+
+    if args.subnetwork_overview is not None:
+        con = Converter()
+        subnet = con.subnetwork_overview()
+        print(subnet)
