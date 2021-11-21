@@ -197,3 +197,19 @@ class Converter():
             # two or more segments. Therefore, add a period after each segment
             if i < len(segmented_args) - 1:
                 self.output += "."
+
+    # Show an overview of subnetting in a chart
+    def subnetwork_overview(self):
+        import pandas as pd
+
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.width', None)
+        pd.set_option('display.max_colwidth', None)
+
+        try:
+            df = pd.read_csv("./Chart.csv")
+        except FileNotFoundError:
+            return "Cannot find file: Chart.csv\nDownload from: https://github.com/asiangoldfish/Dinex/blob/main/Chart.csv"
+
+        return df
